@@ -69,7 +69,11 @@ func deleteItem(w http.ResponseWriter, r *http.Request) {
 			items = append(items[:index], items[index+1:]...)
 			db := ConfigDb()
 			//mysql command
-			db.Prepare("delete from item barcode=?")
+			stmt,err:= db.Prepare("delete from item barcode=?")
+			stmt.Exec(createItem.Barcode)
+				if err!=nil{
+					fmt.Println(err)
+				}
 			//mongo command
 			dbmgo.C("items").Remove(bson.M{"barcode": i.Barcode})
 			db.Exec(i.Barcode)
@@ -91,8 +95,8 @@ func updateItem(w http.ResponseWriter, r *http.Request) {
 			items = append(items, createItem)
 			db := ConfigDb()
 			//mysql command
-			db.Prepare("update set itemname=?,amt=? where barcode=?")
-			db.Exec(createItem.Itemname, createItem.Price, createItem.Barcode)
+			stmt,err:= db.Prepare("update set itemname=?,amt=? where barcode=?")
+			stmt.Exec(createItem.Itemname, createItem.Price, createItem.Barcode)
 			//mongodb
 			dbmgo.C("items").Update(bson.M{"Barcode": i.Barcode}, item.Inventory{Barcode: createItem.Barcode, Itemname: createItem.Itemname, Price: createItem.Price})
 
