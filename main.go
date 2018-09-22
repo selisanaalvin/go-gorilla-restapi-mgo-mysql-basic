@@ -47,9 +47,11 @@ func saveItem(w http.ResponseWriter, r *http.Request) {
 		items = append(items, createItem)
 		db := ConfigDb()
 		//mysql command insert
-		db.Prepare("insert into item(barcode,itemname,amt) values(?,?,?)")
-		db.Exec(createItem.Barcode, createItem.Itemname, createItem.Price)
-		
+		stmt,err:=db.Prepare("insert into item(barcode,itemname,amt) values(?,?,?)")
+		stmt.Exec(createItem.Barcode, createItem.Itemname, createItem.Price)
+		if err!=nil{
+			fmt.Println(err)
+		}
 		//mongo command insert
 		dbmgo.C("items").Insert(createItem)
 		
